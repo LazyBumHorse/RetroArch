@@ -43,6 +43,7 @@
 #include <psapi.h>
 #include <cstdio>
 #include <cstdint>
+#include <cinttypes>
 
 //
 // This file contains the Window-OS-specific functions
@@ -69,36 +70,49 @@ inline DWORD ToNativeTLSIndex (OS_TLSIndex nIndex)
 //
 OS_TLSIndex OS_AllocTLSIndex()
 {
+printf("[DEBUG] OS_AllocTLSIndex()\n"), fflush(stdout);
     DWORD dwIndex = TlsAlloc();
+//printf("[DEBUG] TlsAlloc() = %" PRIu64 "\n", (uint64_t)dwIndex);
     if (dwIndex == TLS_OUT_OF_INDEXES) {
+printf("[DEBUG] TlsAlloc() failed!\n"), fflush(stdout);
         assert(0 && "OS_AllocTLSIndex(): Unable to allocate Thread Local Storage");
         return OS_INVALID_TLS_INDEX;
     }
 
+printf("[DEBUG] OS_AllocTLSIndex() = %" PRIu64 "\n", (uint64_t)ToGenericTLSIndex(dwIndex)), fflush(stdout);
     return ToGenericTLSIndex(dwIndex);
 }
 
 bool OS_SetTLSValue(OS_TLSIndex nIndex, void *lpvValue)
 {
+printf("[DEBUG] OS_SetTLSValue(%" PRIu64 ", %" PRIu64 ")\n", (uint64_t)nIndex, (uint64_t)lpvValue), fflush(stdout);
     if (nIndex == OS_INVALID_TLS_INDEX) {
         assert(0 && "OS_SetTLSValue(): Invalid TLS Index");
         return false;
     }
 
+//printf("[DEBUG] TlsSetValue(%" PRIu64 ", %" PRIu64 ")\n", (uint64_t)ToNativeTLSIndex(nIndex), (uint64_t)lpvValue);
     if (TlsSetValue(ToNativeTLSIndex(nIndex), lpvValue))
         return true;
-    else
+    else {
+printf("[DEBUG] TlsSetValue(%" PRIu64 ", %" PRIu64 ") failed!\n", (uint64_t)ToNativeTLSIndex(nIndex), (uint64_t)lpvValue), fflush(stdout);
         return false;
+    }
 }
 
 void* OS_GetTLSValue(OS_TLSIndex nIndex)
 {
+    void* value;
+//printf("[DEBUG] OS_GetTLSValue(%" PRIu64 ")\n", (uint64_t)nIndex), fflush(stdout);
     assert(nIndex != OS_INVALID_TLS_INDEX);
-    return TlsGetValue(ToNativeTLSIndex(nIndex));
+    value = TlsGetValue(ToNativeTLSIndex(nIndex));
+//printf("[DEBUG] OS_GetTLSValue(%" PRIu64 ") = %" PRIu64 "\n", (uint64_t)nIndex, (uint64_t)value), fflush(stdout);
+    return value;
 }
 
 bool OS_FreeTLSIndex(OS_TLSIndex nIndex)
 {
+printf("[DEBUG] OS_FreeTLSIndex(%" PRIu64 ")\n", (uint64_t)nIndex), fflush(stdout);
     if (nIndex == OS_INVALID_TLS_INDEX) {
         assert(0 && "OS_SetTLSValue(): Invalid TLS Index");
         return false;

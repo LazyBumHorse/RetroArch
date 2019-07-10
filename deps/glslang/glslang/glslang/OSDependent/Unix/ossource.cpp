@@ -46,6 +46,7 @@
 #include <cstdio>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <cinttypes>
 
 namespace glslang {
 
@@ -115,42 +116,57 @@ inline pthread_key_t TLSIndexToPthreadKey(OS_TLSIndex nIndex)
 OS_TLSIndex OS_AllocTLSIndex()
 {
     pthread_key_t pPoolIndex;
+printf("[DEBUG] OS_AllocTLSIndex()"), fflush(stdout);
 
     //
     // Create global pool key.
     //
+printf("[DEBUG] pthread_key_create()\n"), fflush(stdout);
     if ((pthread_key_create(&pPoolIndex, NULL)) != 0) {
+printf("[DEBUG] pthread_key_create() failed!\n"), fflush(stdout);
         assert(0 && "OS_AllocTLSIndex(): Unable to allocate Thread Local Storage");
         return OS_INVALID_TLS_INDEX;
     }
-    else
+    else {
+printf("[DEBUG] pthread_key_create() = %" PRIu64 "\n", (uint64_t)pPoolIndex), fflush(stdout);
+printf("[DEBUG] OS_AllocTLSIndex() = %" PRIu64 "\n", (uint64_t)PthreadKeyToTLSIndex(pPoolIndex)), fflush(stdout);
         return PthreadKeyToTLSIndex(pPoolIndex);
+    }
 }
 
 bool OS_SetTLSValue(OS_TLSIndex nIndex, void *lpvValue)
 {
+printf("[DEBUG] OS_SetTLSValue(%" PRIu64 ", %" PRIu64 ")\n", (uint64_t)nIndex, (uint64_t)lpvValue), fflush(stdout);
     if (nIndex == OS_INVALID_TLS_INDEX) {
         assert(0 && "OS_SetTLSValue(): Invalid TLS Index");
         return false;
     }
 
-    if (pthread_setspecific(TLSIndexToPthreadKey(nIndex), lpvValue) == 0)
+printf("[DEBUG] pthread_setspecific(%" PRIu64 ", %" PRIu64 ")\n", (uint64_t)TLSIndexToPthreadKey(nIndex), (uint64_t)lpvValue), fflush(stdout);
+    if (pthread_setspecific(TLSIndexToPthreadKey(nIndex), lpvValue) == 0) {
         return true;
-    else
+    } else {
+printf("[DEBUG] pthread_setspecific(%" PRIu64 ", %" PRIu64 ") failed!\n", (uint64_t)TLSIndexToPthreadKey(nIndex), (uint64_t)lpvValue), fflush(stdout);
         return false;
+    }
 }
 
 void* OS_GetTLSValue(OS_TLSIndex nIndex)
 {
+    void* value;
+//printf("[DEBUG] OS_GetTLSValue(%" PRIu64 ")\n", (uint64_t)nIndex), fflush(stdout);
     //
     // This function should return 0 if nIndex is invalid.
     //
     assert(nIndex != OS_INVALID_TLS_INDEX);
-    return pthread_getspecific(TLSIndexToPthreadKey(nIndex));
+    value = pthread_getspecific(TLSIndexToPthreadKey(nIndex));
+//printf("[DEBUG] OS_GetTLSValue(%" PRIu64 ") = %" PRIu64 "\n", (uint64_t)nIndex, (uint64_t)value), fflush(stdout);
+    return value;
 }
 
 bool OS_FreeTLSIndex(OS_TLSIndex nIndex)
 {
+printf("[DEBUG] OS_FreeTLSIndex(%" PRIu64 ")\n", (uint64_t)nIndex), fflush(stdout);
     if (nIndex == OS_INVALID_TLS_INDEX) {
         assert(0 && "OS_SetTLSValue(): Invalid TLS Index");
         return false;
