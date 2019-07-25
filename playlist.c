@@ -642,6 +642,7 @@ void playlist_resolve_path(enum playlist_file_mode mode,
 {
 #ifdef HAVE_COCOATOUCH
    char tmp[PATH_MAX_LENGTH];
+   char *ret;
 
    if (mode == PLAYLIST_LOAD)
    {
@@ -652,7 +653,27 @@ void playlist_resolve_path(enum playlist_file_mode mode,
    {
       /* iOS needs to call realpath here since the call
        * above fails due to possibly buffer related issues. */
-      realpath(path, tmp);
+
+      RARCH_LOG("[DEBUG] debug start\n");
+      RARCH_LOG("[DEBUG] size = %d:\n", (int)size);
+      RARCH_LOG("[DEBUG] PATH_MAX_LENGTH = %d:\n", (int)PATH_MAX_LENGTH);
+#ifdef PATH_MAX
+      RARCH_LOG("[DEBUG] PATH_MAX = %d:\n", (int)PATH_MAX);
+#else
+      RARCH_LOG("[DEBUG] PATH_MAX not defined\n");
+#endif
+      RARCH_LOG("[DEBUG] testing realpath():\n");
+      RARCH_LOG("[DEBUG] input = %s\n", path);
+      ret = realpath(path, tmp);
+      RARCH_LOG("[DEBUG] output = %s\n", tmp);
+      RARCH_LOG("[DEBUG] return value = %p = %s\n", ret, ret ? "true" : "false");
+      RARCH_LOG("[DEBUG] testing path_resolve_realpath():\n");
+      RARCH_LOG("[DEBUG] input = %s\n", path);
+      ret = path_resolve_realpath(path, size, true);
+      RARCH_LOG("[DEBUG] output = %s\n", path);
+      RARCH_LOG("[DEBUG] return value = %p = %s\n", ret, ret ? "true" : "false");
+      RARCH_LOG("[DEBUG] debug end\n\n");
+
       fill_pathname_abbreviate_special(path, tmp, size);
    }
 #else
