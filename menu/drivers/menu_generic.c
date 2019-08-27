@@ -66,7 +66,7 @@ static enum action_iterate_type action_iterate_type(const char *label)
  *
  * Returns: 0 on success, -1 if we need to quit out of the loop.
  **/
-int generic_menu_iterate(void *data, void *userdata, enum menu_action action)
+int generic_menu_iterate(retro_time_t current_time, void *data, void *userdata, enum menu_action action)
 {
    enum action_iterate_type iterate_type;
    unsigned file_type             = 0;
@@ -95,7 +95,7 @@ int generic_menu_iterate(void *data, void *userdata, enum menu_action action)
    switch (iterate_type)
    {
       case ITERATE_TYPE_HELP:
-         ret = menu_dialog_iterate(
+         ret = menu_dialog_iterate(current_time,
                menu->menu_state_msg, sizeof(menu->menu_state_msg), label);
          BIT64_SET(menu->state, MENU_STATE_RENDER_MESSAGEBOX);
          BIT64_SET(menu->state, MENU_STATE_POST_ITERATE);
@@ -118,7 +118,7 @@ int generic_menu_iterate(void *data, void *userdata, enum menu_action action)
             bind.s   = menu->menu_state_msg;
             bind.len = sizeof(menu->menu_state_msg);
 
-            if (menu_input_key_bind_iterate(&bind))
+            if (menu_input_key_bind_iterate(current_time, &bind))
             {
                size_t selection = menu_navigation_get_selection();
                menu_entries_pop_stack(&selection, 0, 0);
@@ -265,7 +265,7 @@ int generic_menu_iterate(void *data, void *userdata, enum menu_action action)
    }
 
    if (BIT64_GET(menu->state, MENU_STATE_POST_ITERATE))
-      menu_input_post_iterate(&ret, action);
+      menu_input_post_iterate(current_time, &ret, action);
 
 end:
    if (ret)

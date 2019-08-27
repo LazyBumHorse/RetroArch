@@ -121,11 +121,11 @@ void retro_perf_log(void)
    log_counters(perf_counters_libretro, perf_ptr_libretro);
 }
 
-void rarch_timer_tick(rarch_timer_t *timer)
+void rarch_timer_tick(retro_time_t current_time, rarch_timer_t *timer)
 {
    if (!timer)
       return;
-   timer->current = cpu_features_get_time_usec();
+   timer->current = current_time;
    timer->timeout_us = (timer->timeout_end - timer->current);
 }
 

@@ -1843,7 +1843,7 @@ static void ozone_populate_entries(void *data, const char *path, const char *lab
    }
 }
 
-static int ozone_menu_iterate(void *data,
+static int ozone_menu_iterate(retro_time_t current_time, void *data,
       void *userdata, enum menu_action action)
 {
    int new_selection;
@@ -1855,7 +1855,7 @@ static int ozone_menu_iterate(void *data,
    menu_handle_t *menu           = (menu_handle_t*)data;
 
    if (!ozone)
-      return generic_menu_iterate(menu, userdata, action);
+      return generic_menu_iterate(current_time, menu, userdata, action);
 
    if (ozone->horizontal_list)
       horizontal_list_size    = (unsigned)ozone->horizontal_list->size;
@@ -1957,7 +1957,7 @@ static int ozone_menu_iterate(void *data,
          break;
    }
 
-   return generic_menu_iterate(menu, userdata, new_action);
+   return generic_menu_iterate(current_time, menu, userdata, new_action);
 }
 
 /* TODO: Fancy toggle animation */

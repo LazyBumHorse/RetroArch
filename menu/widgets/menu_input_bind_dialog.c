@@ -531,7 +531,7 @@ bool menu_input_key_bind_set_min_max(menu_input_ctx_bind_limits_t *lim)
    return true;
 }
 
-bool menu_input_key_bind_iterate(menu_input_ctx_bind_t *bind)
+bool menu_input_key_bind_iterate(retro_time_t current_time, menu_input_ctx_bind_t *bind)
 {
    bool               timed_out = false;
    settings_t *        settings = config_get_ptr();
@@ -547,8 +547,8 @@ bool menu_input_key_bind_iterate(menu_input_ctx_bind_t *bind)
              msg_hash_to_str( MENU_ENUM_LABEL_VALUE_SECONDS ) );
 
    /*tick main timers*/
-   rarch_timer_tick( &menu_input_binds.timer_timeout );
-   rarch_timer_tick( &menu_input_binds.timer_hold );
+   rarch_timer_tick( current_time, &menu_input_binds.timer_timeout );
+   rarch_timer_tick( current_time, &menu_input_binds.timer_hold );
 
    if (rarch_timer_has_expired(&menu_input_binds.timer_timeout))
    {
@@ -599,7 +599,7 @@ bool menu_input_key_bind_iterate(menu_input_ctx_bind_t *bind)
          rarch_timer_begin_new_time( &binds.timer_timeout, settings->uints.input_bind_timeout );
 
          /*run hold timer*/
-         rarch_timer_tick( &binds.timer_hold );
+         rarch_timer_tick( current_time, &binds.timer_hold );
 
          snprintf( bind->s, bind->len,
                 "[%s]\npress keyboard, mouse or joypad\nand hold ...",

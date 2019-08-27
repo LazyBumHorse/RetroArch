@@ -129,7 +129,7 @@ void menu_input_reset(void);
 
 bool menu_input_pointer_check_vector_inside_hitbox(menu_input_ctx_hitbox_t *hitbox);
 
-void menu_input_post_iterate(int *ret, unsigned action);
+void menu_input_post_iterate(retro_time_t current_time, int *ret, unsigned action);
 
 RETRO_END_DECLS
 

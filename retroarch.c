@@ -13259,10 +13259,9 @@ static int menu_input_pointer_post_iterate(
    return ret;
 }
 
-void menu_input_post_iterate(int *ret, unsigned action)
+void menu_input_post_iterate(retro_time_t current_time, int *ret, unsigned action)
 {
    menu_input_t *menu_input  = &menu_input_state;
-   retro_time_t current_time = cpu_features_get_time_usec();
 
    /* If pointer devices are disabled, just ensure mouse
     * cursor is hidden */
@@ -24284,7 +24283,10 @@ static bool input_driver_toggle_button_combo(
          if (!rarch_timer_is_running(&timer))
             rarch_timer_begin(&timer, HOLD_START_DELAY_SEC);
 
-         rarch_timer_tick(&timer);
+         {
+            retro_time_t current_time  = cpu_features_get_time_usec();
+            rarch_timer_tick(current_time, &timer);
+         }
 
          if (!timer.timer_end && rarch_timer_has_expired(&timer))
          {
@@ -24448,6 +24450,7 @@ static enum runloop_state runloop_check_state(void)
    static uint64_t seq                 = 0;
 #endif
 #endif
+   retro_time_t current_time           = cpu_features_get_time_usec();
 
 #ifdef HAVE_LIBNX
    /* Should be called once per frame */
@@ -24561,7 +24564,7 @@ static enum runloop_state runloop_check_state(void)
       if (trig_quit_key && settings->bools.quit_press_twice)
       {
          static retro_time_t quit_key_time   = 0;
-         retro_time_t cur_time = cpu_features_get_time_usec();
+         retro_time_t cur_time = current_time;
          trig_quit_key         = (cur_time - quit_key_time < QUIT_DELAY_USEC);
          quit_key_time         = cur_time;
 
@@ -24646,7 +24649,7 @@ static enum runloop_state runloop_check_state(void)
    }
 
 #if defined(HAVE_MENU)
-   menu_animation_update(video_driver_width, video_driver_height);
+   menu_animation_update(current_time, video_driver_width, video_driver_height);
 
 #ifdef HAVE_MENU_WIDGETS
    if (menu_widgets_inited)
@@ -24684,7 +24687,7 @@ static enum runloop_state runloop_check_state(void)
       {
          if (action == old_action)
          {
-            retro_time_t press_time           = cpu_features_get_time_usec();
+            retro_time_t press_time           = current_time;
 
             if (action == MENU_ACTION_NOOP)
                global->menu.noop_press_time   = press_time - global->menu.noop_start_time;
@@ -24695,13 +24698,13 @@ static enum runloop_state runloop_check_state(void)
          {
             if (action == MENU_ACTION_NOOP)
             {
-               global->menu.noop_start_time      = cpu_features_get_time_usec();
+               global->menu.noop_start_time      = current_time;
                global->menu.noop_press_time      = 0;
 
                if (global->menu.prev_action == old_action)
                   global->menu.action_start_time = global->menu.prev_start_time;
                else
-                  global->menu.action_start_time = cpu_features_get_time_usec();
+                  global->menu.action_start_time = current_time;
             }
             else
             {
@@ -24709,11 +24712,11 @@ static enum runloop_state runloop_check_state(void)
                      global->menu.noop_press_time < 200000) /* 250ms */
                {
                   global->menu.action_start_time = global->menu.prev_start_time;
-                  global->menu.action_press_time = cpu_features_get_time_usec() - global->menu.action_start_time;
+                  global->menu.action_press_time = current_time - global->menu.action_start_time;
                }
                else
                {
-                  global->menu.prev_start_time   = cpu_features_get_time_usec();
+                  global->menu.prev_start_time   = current_time;
                   global->menu.prev_action       = action;
                   global->menu.action_press_time = 0;
                }
@@ -24721,7 +24724,7 @@ static enum runloop_state runloop_check_state(void)
          }
       }
 
-      if (!menu_driver_iterate(&iter))
+      if (!menu_driver_iterate(current_time, &iter))
          retroarch_menu_running_finished(false);
 
       if (focused || !runloop_idle)
@@ -25219,7 +25222,7 @@ static enum runloop_state runloop_check_state(void)
        */
       if (need_to_apply)
       {
-         rarch_timer_tick(&timer);
+         rarch_timer_tick(current_time, &timer);
 
          if (!timer.timer_end && rarch_timer_has_expired(&timer))
          {
@@ -25236,7 +25239,7 @@ static enum runloop_state runloop_check_state(void)
          rarch_timer_begin_us(&shader_delay_timer, settings->uints.video_shader_delay * 1000);
       else
       {
-         rarch_timer_tick(&shader_delay_timer);
+         rarch_timer_tick(current_time, &shader_delay_timer);
 
          if (rarch_timer_has_expired(&shader_delay_timer))
          {

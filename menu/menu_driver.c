@@ -3180,10 +3180,9 @@ bool menu_driver_get_load_content_animation_data(menu_texture_item *icon, char *
 }
 
 /* Iterate the menu driver for one frame. */
-bool menu_driver_iterate(menu_ctx_iterate_t *iterate)
+bool menu_driver_iterate(retro_time_t current_time, menu_ctx_iterate_t *iterate)
 {
-   /* Get current time */
-   menu_driver_current_time_us = cpu_features_get_time_usec();
+   menu_driver_current_time_us = current_time;
 
    if (menu_driver_pending_quick_menu)
    {
@@ -3207,7 +3206,7 @@ bool menu_driver_iterate(menu_ctx_iterate_t *iterate)
    if (
          menu_driver_ctx          &&
          menu_driver_ctx->iterate &&
-         menu_driver_ctx->iterate(menu_driver_data,
+         menu_driver_ctx->iterate(current_time, menu_driver_data,
             menu_userdata, iterate->action) != -1)
       return true;
 

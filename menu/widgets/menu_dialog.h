@@ -53,7 +53,7 @@ RETRO_BEGIN_DECLS
 void menu_dialog_push_pending(
       bool push, enum menu_dialog_type type);
 
-int menu_dialog_iterate(
+int menu_dialog_iterate(retro_time_t current_time,
       char *s, size_t len, const char *label);
 
 void menu_dialog_unset_pending_push(void);

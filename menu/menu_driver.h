@@ -250,7 +250,7 @@ typedef struct menu_ctx_driver
    void  (*set_texture)(void);
    /* Render a messagebox to the screen. */
    void  (*render_messagebox)(void *data, const char *msg);
-   int   (*iterate)(void *data, void *userdata, enum menu_action action);
+   int   (*iterate)(retro_time_t current_time, void *data, void *userdata, enum menu_action action);
    void  (*render)(void *data, unsigned width, unsigned height, bool is_idle);
    void  (*frame)(void *data, video_frame_info_t *video_info);
    /* Initializes the menu driver. (setup) */
@@ -510,7 +510,7 @@ void menu_driver_frame(video_frame_info_t *video_info);
 
 bool menu_driver_get_load_content_animation_data(menu_texture_item *icon, char **playlist_name);
 
-bool menu_driver_iterate(menu_ctx_iterate_t *iterate);
+bool menu_driver_iterate(retro_time_t current_time, menu_ctx_iterate_t *iterate);
 
 bool menu_driver_list_clear(file_list_t *list);
 

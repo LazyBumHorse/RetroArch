@@ -1185,7 +1185,7 @@ bool menu_animation_push(menu_animation_ctx_entry_t *entry)
    return true;
 }
 
-static void menu_animation_update_time(bool timedate_enable, unsigned video_width, unsigned video_height)
+static void menu_animation_update_time(retro_time_t current_time, bool timedate_enable, unsigned video_width, unsigned video_height)
 {
    static retro_time_t
       last_clock_update       = 0;
@@ -1205,7 +1205,7 @@ static void menu_animation_update_time(bool timedate_enable, unsigned video_widt
    unsigned ticker_slow_speed = (unsigned)(((float)TICKER_SLOW_SPEED / speed_factor) + 0.5);
 
    /* Note: cur_time & old_time are in us, delta_time is in ms */
-   cur_time   = cpu_features_get_time_usec();
+   cur_time   = current_time;
    delta_time = old_time == 0 ? 0.0f : (float)(cur_time - old_time) / 1000.0f;
    old_time   = cur_time;
 
@@ -1278,12 +1278,12 @@ static void menu_animation_update_time(bool timedate_enable, unsigned video_widt
    }
 }
 
-bool menu_animation_update(unsigned video_width, unsigned video_height)
+bool menu_animation_update(retro_time_t current_time, unsigned video_width, unsigned video_height)
 {
    unsigned i;
    settings_t *settings = config_get_ptr();
 
-   menu_animation_update_time(settings->bools.menu_timedate_enable, video_width, video_height);
+   menu_animation_update_time(current_time, settings->bools.menu_timedate_enable, video_width, video_height);
 
    anim.in_update       = true;
    anim.pending_deletes = false;
