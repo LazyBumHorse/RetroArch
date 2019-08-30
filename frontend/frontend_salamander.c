@@ -118,32 +118,19 @@ static void find_and_set_first_file(char *s, size_t len,
 static void salamander_init(char *s, size_t len)
 {
    /* normal executable loading path */
-   bool config_exists = config_file_exists(g_defaults.path.config);
+   config_file_t *conf = config_file_new(g_defaults.path.config);
 
-   if (config_exists)
+   if (conf)
    {
       char tmp_str[PATH_MAX_LENGTH] = {0};
-      config_file_t * conf          = config_file_new(g_defaults.path.config);
+      config_get_array(conf, "libretro_path", tmp_str, sizeof(tmp_str));
+      config_file_free(conf);
 
-      if (conf)
-      {
-         config_get_array(conf, "libretro_path", tmp_str, sizeof(tmp_str));
-         config_file_free(conf);
-
-         if (memcmp(tmp_str, "builtin", 7) != 0)
-            strlcpy(s, tmp_str, len);
-      }
-#ifdef GEKKO
-      /* stupid libfat bug or something; sometimes it says
-       * the file is there when it doesn't. */
-      else
-      {
-         config_exists = false;
-      }
-#endif
+      if (memcmp(tmp_str, "builtin", 7) != 0)
+         strlcpy(s, tmp_str, len);
    }
 
-   if (!config_exists || string_is_equal(s, ""))
+   if (!conf || string_is_equal(s, ""))
    {
       char executable_name[PATH_MAX_LENGTH] = {0};
 
@@ -154,17 +141,19 @@ static void salamander_init(char *s, size_t len)
    else
       RARCH_LOG("Start [%s] found in retroarch.cfg.\n", s);
 
-   if (!config_exists)
+   if (!conf)
    {
-      config_file_t *conf = config_file_new_alloc();
+      conf = config_file_new_alloc();
 
       if (conf)
       {
          config_set_string(conf, "libretro_path", s);
          config_file_write(conf, g_defaults.path.config, true);
-         config_file_free(conf);
       }
    }
+
+   if (conf)
+      config_file_free(conf);
 }
 #ifdef HAVE_MAIN
 int salamander_main(int argc, char *argv[])
