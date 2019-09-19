@@ -833,6 +833,8 @@ static int menu_displaylist_parse_playlist(menu_displaylist_info_t *info,
 
    label_spacer[0] = '\0';
 
+   RARCH_LOG("[DEBUG] menu_displaylist_parse_playlist list_size = %u\n", (unsigned)list_size);
+
    if (list_size == 0)
       goto error;
 
@@ -963,6 +965,7 @@ static int menu_displaylist_parse_playlist(menu_displaylist_info_t *info,
    return 0;
 
 error:
+   RARCH_LOG("[DEBUG] info->need_push_no_playlist_entries = true;\n");
    info->need_push_no_playlist_entries = true;
    return 0;
 }
@@ -1679,6 +1682,8 @@ static void menu_displaylist_set_new_playlist(
    settings_t *settings           = config_get_ptr();
 
    menu->db_playlist_file[0]      = '\0';
+
+   RARCH_LOG("[DEBUG] menu_displaylist_set_new_playlist(%s)\n", path);
 
    if (playlist_get_cached())
       playlist_free_cached();

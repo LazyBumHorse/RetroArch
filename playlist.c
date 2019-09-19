@@ -2008,7 +2008,11 @@ static bool playlist_read_file(
     * create an empty playlist instead.
     */
    if (!file)
+   {
+      RARCH_LOG("[DEBUG] couldn't open playlist %s\n", path);
       return true;
+   }
+   RARCH_LOG("[DEBUG] opened playlist %s\n", path);
 
    /* Detect format of playlist */
    {
@@ -2048,6 +2052,8 @@ static bool playlist_read_file(
       context.parser = JSON_Parser_Create(NULL);
       context.file = file;
       context.playlist = playlist;
+
+      RARCH_LOG("[DEBUG] new playlist format detected\n");
 
       if (!context.parser)
       {
@@ -2132,6 +2138,8 @@ json_cleanup:
       char default_core_name[1024];
       char metadata_char;
       size_t metadata_counter;
+
+      RARCH_LOG("[DEBUG] old playlist format detected\n");
 
       for (i = 0; i < PLAYLIST_ENTRIES; i++)
          buf[i][0] = '\0';
@@ -2263,6 +2271,8 @@ json_cleanup:
       if (filestream_error(file))
          goto end;
 
+      RARCH_LOG("[DEBUG] reading playlist entries...\n");
+
       for (playlist->size = 0; playlist->size < playlist->cap; )
       {
          unsigned i;
@@ -2305,6 +2315,7 @@ json_cleanup:
    }
 
 end:
+   RARCH_LOG("[DEBUG] read playlist with %u entries\n", (unsigned)playlist->size);
    filestream_close(file);
    return true;
 }
@@ -2325,10 +2336,15 @@ playlist_t *playlist_get_cached(void)
 bool playlist_init_cached(const char *path, size_t size)
 {
    playlist_t *playlist = playlist_init(path, size);
+
    if (!playlist)
+   {
+      RARCH_LOG("[DEBUG] playlist_init_cached(%s) failed\n", path);
       return false;
+   }
 
    playlist_cached      = playlist;
+   RARCH_LOG("[DEBUG] playlist_init_cached(%s) succeded\n", path);
    return true;
 }
 
