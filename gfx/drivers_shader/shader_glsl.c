@@ -37,6 +37,7 @@
 #include "../../managers/state_manager.h"
 #include "../../core.h"
 #include "../../verbosity.h"
+#include "memalign.h"
 
 #define PREV_TEXTURES (GFX_MAX_TEXTURES - 1)
 
@@ -1446,7 +1447,7 @@ static bool gl_glsl_set_coords(void *shader_data,
 
       elems        *= coords->vertices * sizeof(GLfloat);
 
-      buffer        = (GLfloat*)malloc(elems);
+      buffer        = (GLfloat*)memalign_alloc(sizeof(GLfloat), elems);
    }
 
    if (!buffer)
@@ -1489,7 +1490,7 @@ static bool gl_glsl_set_coords(void *shader_data,
             attribs, attribs_size);
 
    if (buffer != short_buffer)
-      free(buffer);
+      memalign_free(buffer);
 
    return true;
 }
